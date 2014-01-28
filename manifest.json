@@ -1,0 +1,24 @@
+{
+  "manifest_version": 2,
+
+  "name": "Illinois Wikifier",
+  "description": "Enables the 'wikification' of any website",
+  "version": "1.0",
+
+  "permissions": [
+    "http://greystock.cs.illinois.edu:8080/",
+	"tabs",
+	"activeTab",
+    "webNavigation"
+  ],
+  
+  "background": {
+	  "scripts": ["background.js"],
+	  "persistent": false
+  },
+  
+  "browser_action": {
+      "default_icon": "icon.png",
+	  "default_title": "'Wikify' this website"
+    }
+}
