@@ -1,24 +1,11 @@
-var wikifierURL = 'http://greystock.cs.illinois.edu:8080/curator/curate2.php';
+var wikifierURL = 'http://greystock.cs.illinois.edu:8080/curator/curate.php';
 
-var htmlText = strip(document.body.innerHTML);
 var htmlFull = document.body.innerHTML;
 
-wikify(htmlText, htmlFull);
+wikify(htmlFull);
 
-function strip(html) {
-	//First get rid of everything inside <script> tags
-	html = html.replace(/<script.*>[\w\W]{1,}(.*?)[\w\W]{1,}<\/script>/gi, "");
-	var tmp = document.createElement("DIV");
-	tmp.innerHTML = html;
-	var text = tmp.textContent || tmp.innerText || "";
-	text = text.replace(/\s+/g,' ');
-	return text;
-}
-
-function wikify(text, htmlOriginal) {
-	var data = new FormData();
-	data.append('text', text);
-	data.append('html', htmlOriginal);
+function wikify(html) {
+	//Create the notification element
 	var tmp = document.createElement("div");
 	tmp.style.position="absolute";
 	tmp.style.fontSize="small";
@@ -34,12 +21,17 @@ function wikify(text, htmlOriginal) {
 	tmp.innerHTML="Wikifying...";
 	document.body.appendChild(tmp);
 	console.log('Stating wikification...');
-	console.log('Adding data' + text);
+	
+	var data = new FormData();
+	data.append('html', html);
+
+	console.log('Adding data');
 	var xhr = this.createCORSRequest('POST', wikifierURL);
 
 	function handleSuccess(response) {
 		// alert('Sucess!');
 		document.body.innerHTML = response;
+		chrome.runtime.connect().postMessage({"result": "success"});
 	}
 
 	var invokedErrorCallback = false;
@@ -48,15 +40,14 @@ function wikify(text, htmlOriginal) {
 		alert ('Could not contact wikifier!');
 		document.body.removeChild(tmp);
 		invokedErrorCallback = true;
+		chrome.runtime.connect().postMessage({"result": "failure"});
 	}
 
 	xhr.onload = function() {
 		if (xhr.responseText) {
 			var response = xhr.responseText;
-			if (response) {
-				handleSuccess(response);
-				return;
-			}
+			handleSuccess(response);
+			return;
 		}
 		handleError();
 	};
