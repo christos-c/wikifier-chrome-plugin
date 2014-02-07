@@ -15,6 +15,7 @@ $text = cleanupHTML($htmlOrg);
 // echo $text;
 
 try {
+	// Curator connection
     $hostname = $curator_hostname;
     $port = $curator_port;
 	$timeout = 300;
@@ -25,15 +26,21 @@ try {
     $protocol = new TBinaryProtocol($transport);
     $client = new curator_CuratorClient($protocol);
     $transport->open();
+	
+	// Getting the wikifier label view (see Edison)
     $record = $client->getRecord($text);
     $record = $client->provide("wikifier-new", $text, true);
 	$transport->close();
 	$content = "";
+	
+	// Getting from spans->labels to $results[text, label]
 	$labeling = $record->labelViews['wikifier-new'];
 	$view_name='wikifier-new';
     $results = getLabelingHTML($record->rawText, $labeling, $view_name);
 	foreach ($results as $result) {
-		$link = " <a href=\"".$result['label']."\">".$result['text']."</a> ";
+		// Add some style options to our links
+		$link = " <a style=\"outline: 1pt dotted black;\" href=\"".$result['label']."\">".$result['text']."</a> ";
+		// Now replace the matching text in the original HTML with the wikifier links
 		$htmlOrg = preg_replace('/\s'.$result['text'].'\s/', $link, $htmlOrg);
 	}
 	echo $htmlOrg;
@@ -57,6 +64,7 @@ try {
 	echo $response;
 }
 
+/*** HELPER FUNCTIONS ***/
 
 function cleanupHTML($html) {
 	// Remove any non printable characters (non-ascii)
