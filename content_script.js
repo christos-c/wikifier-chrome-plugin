@@ -1,3 +1,4 @@
+// This point to the webserved that contains the files in SERVER
 var wikifierURL = 'http://greystock.cs.illinois.edu:8080/curator/curate.php';
 
 var htmlFull = document.body.innerHTML;
